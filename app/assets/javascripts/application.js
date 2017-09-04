@@ -15,4 +15,7 @@
 
 //= require phaser.min
 
+//= require game/constants
 //= require game/init
+
+//= require game/models/player
