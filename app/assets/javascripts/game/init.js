@@ -11,14 +11,15 @@ var weapon;
 function preload() {
 	game.load.image('bg', 'assets/images/background/bg.jpg');
 	game.load.image('forest_gr_center', 'assets/images/background/forest/WaveForest_Square.png');
-	game.load.image('unit', 'assets/images/units/Blue_Right1.png');
+	game.load.spritesheet('unit', 'assets/images/units/player1.png', 150, 200);
 	game.load.image('bullet1', 'assets/images/items/bullet1.png');
 	game.load.tilemap('level1_tile', 'assets/tiles/level1.json', null, Phaser.Tilemap.TILED_JSON);
 }
 
 function create() {
 	game.physics.startSystem(Phaser.Physics.ARCADE);
-	game.add.sprite(0, 0, 'bg');
+	bg = game.add.sprite(0, 0, 'bg');
+    bg.fixedToCamera = true;
 
 	var map = game.add.tilemap('level1_tile');
 	map.addTilesetImage('forest_ground_center', 'forest_gr_center');
@@ -27,7 +28,7 @@ function create() {
 	groundLayer = map.createLayer('GroundLayer');
 
 	map.setCollisionBetween(1, 100, true, groundLayer);
- 
+
     //Change the world size to match the size of this layer
     groundLayer.resizeWorld();
 
@@ -73,6 +74,9 @@ function update() {
     {
         player.move_right();
     }
+    else {
+        player.stop();
+    }
 
     if (fireButton.isDown)
     {
@@ -87,7 +91,7 @@ function update() {
         weapon.fire();
     }
 
-    
+
     if (jumpButton.isDown && player.on_floor() && game.time.now > player.jumpTimer)
     {
         player.jump();
