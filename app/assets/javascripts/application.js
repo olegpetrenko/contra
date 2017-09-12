@@ -18,4 +18,5 @@
 //= require game/constants
 //= require game/init
 
+//= require game/models/weapon
 //= require game/models/player

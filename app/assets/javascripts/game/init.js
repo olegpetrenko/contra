@@ -6,11 +6,11 @@ var cursors;
 var jumpButton;
 var bulletTime = 0;
 var fireButton;
-var weapon;
 
 function preload() {
 	game.load.image('bg', 'assets/images/background/bg.jpg');
 	game.load.image('forest_gr_center', 'assets/images/background/forest/WaveForest_Square.png');
+    game.load.image('forest_gr_bottom', 'assets/images/background/forest/WaveForest_MudSquare.png');
 	game.load.spritesheet('unit', 'assets/images/units/player1.png', 150, 200);
 	game.load.image('bullet1', 'assets/images/items/bullet1.png');
 	game.load.tilemap('level1_tile', 'assets/tiles/level1.json', null, Phaser.Tilemap.TILED_JSON);
@@ -23,6 +23,7 @@ function create() {
 
 	var map = game.add.tilemap('level1_tile');
 	map.addTilesetImage('forest_ground_center', 'forest_gr_center');
+    map.addTilesetImage('forest_ground_bottom', 'forest_gr_bottom');
 
 	var backgroundlayer = map.createLayer('BackgroundLayer');
 	groundLayer = map.createLayer('GroundLayer');
@@ -35,26 +36,10 @@ function create() {
     player = new Player(game, 'unit')
     player.create(150, 100);
 
-    game.camera.follow(player.unit);
+    var weapon = new Weapon(game, 'bullet1');
+    weapon.create(40);
 
-    //  Creates 30 bullets, using the 'bullet' graphic
-    weapon = game.add.weapon(40, 'bullet1');
-
-    //  The 'rgblaser.png' is a Sprite Sheet with 80 frames in it (each 4x4 px in size)
-    //  The 3rd argument tells the Weapon Plugin to advance to the next frame each time
-    //  a bullet is fired, when it hits 80 it'll wrap to zero again.
-    //  You can also set this via this.weapon.bulletFrameCycle = true
-    weapon.setBulletFrames(0, 80, true);
-
-    weapon.bulletKillType = Phaser.Weapon.KILL_WORLD_BOUNDS;
-
-    //  The speed at which the bullet is fired
-    weapon.bulletSpeed = 400;
-
-    //  Speed-up the rate of fire, allowing them to shoot 1 bullet every 50ms
-    weapon.fireRate = 300;
-
-    weapon.trackSprite(player.unit, 0, 0, false);
+    player.set_weapon(weapon);
 
     cursors = game.input.keyboard.createCursorKeys();
     jumpButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
@@ -80,17 +65,8 @@ function update() {
 
     if (fireButton.isDown)
     {
-        if (player.facing == 'left')
-        {
-            weapon.fireAngle = Phaser.ANGLE_LEFT;
-        }
-        else if (player.facing == 'right')
-        {
-            weapon.fireAngle = Phaser.ANGLE_RIGHT;
-        }
-        weapon.fire();
+        player.fire();
     }
-
 
     if (jumpButton.isDown && player.on_floor() && game.time.now > player.jumpTimer)
     {
