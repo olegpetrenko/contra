@@ -11,7 +11,7 @@ function preload() {
   game.load.image('bg', 'assets/images/background/bg.jpg');
   game.load.image('forest_gr_center', 'assets/images/background/forest/WaveForest_Square.png');
   game.load.image('forest_gr_bottom', 'assets/images/background/forest/WaveForest_MudSquare.png');
-  game.load.spritesheet('unit', 'assets/images/units/player1.png', 150, 200);
+  game.load.spritesheet('unit', 'assets/images/units/player.png', 214, 200);
   game.load.image('bullet1', 'assets/images/items/bullet1.png');
   game.load.tilemap('level1_tile', 'assets/tiles/level1.json', null, Phaser.Tilemap.TILED_JSON);
 }
