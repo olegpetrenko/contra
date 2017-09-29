@@ -20,3 +20,4 @@
 
 //= require game/models/weapon
 //= require game/models/player
+//= require game/models/enemy

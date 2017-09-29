@@ -1,79 +1,92 @@
-var Player = function(game, sprite) {
-  this.game = game;
-  this.sprite = sprite;
-  this.unit;
+var Player = function (game, x, y, direction, speed) {
   this.jumpTimer = 0;
+  this.cursors = game.input.keyboard.createCursorKeys();
+  this.jumpButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+  this.fireButton = game.input.keyboard.addKey(Phaser.Keyboard.X);
+
+  Phaser.Sprite.call(this, game, x, y, 'unit');
+
+  game.physics.enable(this, Phaser.Physics.ARCADE);
+  this.body.collideWorldBounds = true;
+  this.body.bounce.y = 0.2;
+  this.body.gravity.y = DEFAULT_GRAVITY;
+  this.facing = Player.DEFAULT_FACING;
+  this.animations.add('move', [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], 13, true);
+  this.animations.add('stand', [10, 11, 12, 13], 5, true);
+  this.scale.setTo(Player.DEFAULT_SCALE);
+  this.anchor.setTo(0.5);
+  this.body.setSize(80, 185, 15, 0);
+
+  game.add.existing(this);
+  game.camera.follow(this);
 }
+
+Player.prototype = Object.create(Phaser.Sprite.prototype);
+Player.prototype.constructor = Player;
 
 Player.DEFAULT_MOVE_SPEED = 200;
 Player.DEFAULT_JUMP_SPEED = 350;
 Player.DEFAULT_FACING = 'right';
 Player.DEFAULT_SCALE = 0.6;
 
-Player.prototype.create = function(positionX, positionY) {
-  this.unit = this.game.add.sprite(positionX, positionY, this.sprite);
-  this.game.physics.enable(this.unit, Phaser.Physics.ARCADE);
-  this.unit.body.collideWorldBounds = true;
-  this.unit.body.bounce.y = 0.2;
-  this.unit.body.gravity.y = DEFAULT_GRAVITY;
-  this.facing = Player.DEFAULT_FACING;
-  this.unit.animations.add('move', [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 13, true);
-  this.unit.scale.setTo(Player.DEFAULT_SCALE);
-  this.unit.anchor.setTo(0.5);
-  this.unit.body.setSize(80, 185, 15, 0);
-  this.game.camera.follow(this.unit);
-  return this.unit;
-}
+Player.prototype.update = function() {
+  game.physics.arcade.collide(this, groundLayer);
 
-Player.prototype.x = function() {
-  return this.unit.x;
-}
+  this.body.velocity.x = 0;
 
-Player.prototype.y = function() {
-  return this.unit.y;
-}
+  if (this.cursors.left.isDown)
+  {
+    this.move_left();
+  }
+  else if (this.cursors.right.isDown)
+  {
+    this.move_right();
+  }
+  else {
+    this.stop();
+  }
 
-Player.prototype.on_floor = function() {
-  return this.unit.body.onFloor();
+  if (this.fireButton.isDown)
+  {
+    this.fire();
+  }
+
+  if (this.jumpButton.isDown && this.body.onFloor() && game.time.now > this.jumpTimer)
+  {
+    this.jump();
+  }
 }
 
 Player.prototype.set_weapon = function(weapon) {
   this.weapon = weapon;
-  this.weapon.trackUnit(this.unit);
-}
-
-Player.prototype.nullify_velocity = function() {
-  this.unit.body.velocity.x = 0;
-}
-
-Player.prototype.move_left = function() {
-  this.unit.body.velocity.x = - Player.DEFAULT_MOVE_SPEED;
-  this.unit.animations.play('move');
-  if (this.facing != 'left') {
-    this.facing = 'left';
-    this.unit.scale.x = - Player.DEFAULT_SCALE;
-  }
-  this.weapon.set_fire_angle(Phaser.ANGLE_LEFT);
-}
-
-Player.prototype.move_right = function() {
-  this.unit.body.velocity.x = Player.DEFAULT_MOVE_SPEED;
-  this.unit.animations.play('move');
-  if (this.facing != 'right') {
-    this.facing = 'right';
-    this.unit.scale.x = Player.DEFAULT_SCALE;
-  }
+  this.weapon.trackUnit(this, 60, 10);
   this.weapon.set_fire_angle(Phaser.ANGLE_RIGHT);
 }
 
+Player.prototype.move_left = function() {
+  this.body.velocity.x = - Player.DEFAULT_MOVE_SPEED;
+  this.animations.play('move');
+  if (this.facing != 'left') {
+    this.facing = 'left';
+    this.scale.x = - Player.DEFAULT_SCALE;
+  }
+  this.weapon.set_fire_angle(Phaser.ANGLE_LEFT);
+  this.weapon.setFireFrom(-60, 10);
+}
+
+Player.prototype.move_right = function() {
+  this.body.velocity.x = Player.DEFAULT_MOVE_SPEED;
+  this.animations.play('move');
+  if (this.facing != 'right') {
+    this.facing = 'right';
+    this.scale.x = Player.DEFAULT_SCALE;
+  }
+  this.weapon.set_fire_angle(Phaser.ANGLE_RIGHT);
+  this.weapon.setFireFrom(60, 10);
+}
+
 Player.prototype.stop = function() {
-  this.unit.animations.stop();
-  if (this.facing == 'right') {
-    this.unit.frame = 0;
-  }
-  else {
-    this.unit.frame = 17;
-  }
+  this.animations.play('stand');
 }
 
 Player.prototype.fire = function() {
@@ -81,6 +94,6 @@ Player.prototype.fire = function() {
 }
 
 Player.prototype.jump = function() {
-  this.unit.body.velocity.y = - Player.DEFAULT_JUMP_SPEED;
-  this.jumpTimer = this.game.time.now + 750;
+  this.body.velocity.y = - Player.DEFAULT_JUMP_SPEED;
+  this.jumpTimer = game.time.now + 750;
 }

@@ -16,8 +16,13 @@ Weapon.prototype.set_fire_angle = function(angle) {
   this.object.fireAngle = angle;
 }
 
-Weapon.prototype.trackUnit = function(unit) {
-  this.object.trackSprite(unit, 0, 0, false);
+Weapon.prototype.trackUnit = function(unit, fire_from_x, fire_from_y) {
+  this.object.trackSprite(unit);
+  this.setFireFrom(fire_from_x, fire_from_y);
+}
+
+Weapon.prototype.setFireFrom = function(x, y) {
+  this.object.trackOffset.setTo(x, y);
 }
 
 Weapon.prototype.fire = function() {
